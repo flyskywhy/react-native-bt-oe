@@ -425,8 +425,10 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
 
     @ReactMethod
     private void autoConnect() {
-Log.d(TAG, "try connect: " + Manager.inst().isConnected());
-        if (!Manager.inst().isConnected()) {
+        if (Manager.inst().isConnected()) {
+            sendEvent(DEVICE_STATUS_LOGIN);
+        } else {
+            sendEvent(DEVICE_STATUS_LOGOUT);
             Manager.inst().checkConnect();
         }
     }
@@ -647,7 +649,11 @@ Log.d(TAG, "try connect: " + Manager.inst().isConnected());
 
         @Override
         public void onConnect(boolean isBleConn, boolean isWiFiConn) {
-            Log.d(TAG, "Manager connected: " + Manager.inst().isConnected());
+            if (Manager.inst().isConnected()) {
+                sendEvent(DEVICE_STATUS_LOGIN);
+            } else {
+                sendEvent(DEVICE_STATUS_LOGOUT);
+            }
         }
 
         @Override
