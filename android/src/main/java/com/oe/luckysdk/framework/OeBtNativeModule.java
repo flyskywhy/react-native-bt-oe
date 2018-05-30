@@ -469,7 +469,7 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
         try {
             NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
             Util.UIColor color = new Util.UIColor(0, 0, 0);
-            Util.CoolWarm cw = new Util.CoolWarm(0.5, value / 255.0D);
+            Util.CoolWarm cw = new Util.CoolWarm(1, value / 255.0D);
             Manager.inst().hsbtb(color, cw, -1, dev);
         } catch (JSONException localJSONException) {
             localJSONException.printStackTrace();
