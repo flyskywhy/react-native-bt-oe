@@ -284,7 +284,7 @@ if (D) Log.d(TAG, "isInited: " + isInited);
     }
 
     @ReactMethod
-    protected void doResume() {
+    public void doResume() {
         //检查是否支持蓝牙设备
         // if (!LeBluetooth.getInstance().isSupport(mContext)) {
         //     Toast.makeText(mContext, "ble not support", Toast.LENGTH_SHORT).show();
@@ -321,7 +321,7 @@ if (D) Log.d(TAG, "isInited: " + isInited);
 
 
     @ReactMethod
-    protected void doPause() {
+    public void doPause() {
         // TaskPool.DefSeqTaskPool().CancelCycTask(autoConn);
         Manager.inst().lsnrs.remLsnr(lsnr);
     }
@@ -425,7 +425,7 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     }
 
     @ReactMethod
-    private void autoConnect() {
+    public void autoConnect() {
         if (Manager.inst().isConnected()) {
             sendEvent(DEVICE_STATUS_LOGIN);
         } else {
@@ -435,7 +435,7 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     }
 
     @ReactMethod
-    private void autoRefreshNotify(int repeatCount, int Interval) {
+    public void autoRefreshNotify(int repeatCount, int Interval) {
         // LeRefreshNotifyParameters refreshNotifyParams = Parameters.createRefreshNotifyParameters();
         // refreshNotifyParams.setRefreshRepeatCount(repeatCount);
         // refreshNotifyParams.setRefreshInterval(Interval);
@@ -444,11 +444,11 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     }
 
     @ReactMethod
-    private void idleMode(boolean disconnect) {
+    public void idleMode(boolean disconnect) {
     }
 
     @ReactMethod
-    private void startScan(int timeoutSeconds) {
+    public void startScan(int timeoutSeconds) {
         if (Manager.inst().isConnected()) {
             Log.d(TAG, "startScan timeoutSeconds: " + timeoutSeconds);
             Manager.inst().scanNewDevice((long) (timeoutSeconds * 1000));
@@ -487,7 +487,7 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     }
 
     @ReactMethod
-    private void changePower(String devJson, int value) {
+    public void changePower(String devJson, int value) {
         try {
             JSONObject devJSONObject = new JSONObject(devJson);
             NetworkConfig.Device dev = NetworkConfig.Device.a(devJSONObject);
@@ -504,7 +504,7 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     }
 
     @ReactMethod
-    private void changeBrightness(String devJson, int value) {
+    public void changeBrightness(String devJson, int value) {
         try {
             JSONObject devJSONObject = new JSONObject(devJson);
             NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
@@ -523,7 +523,7 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     }
 
     @ReactMethod
-    private void changeColorTemp(String devJson, int value) {
+    public void changeColorTemp(String devJson, int value) {
         try {
             JSONObject devJSONObject = new JSONObject(devJson);
             NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
@@ -542,7 +542,7 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     }
 
     @ReactMethod
-    private void changeColor(String devJson, int value) {
+    public void changeColor(String devJson, int value) {
         // try {
         //     NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
         //     Util.UIColor color = new Util.UIColor(0, 0, 0);
@@ -554,7 +554,7 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     }
 
     @ReactMethod
-    private void configNode(String devJson, boolean isToClaim, Promise promise) {
+    public void configNode(String devJson, boolean isToClaim, Promise promise) {
         mConfigNodePromise = promise;
         try {
             NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
