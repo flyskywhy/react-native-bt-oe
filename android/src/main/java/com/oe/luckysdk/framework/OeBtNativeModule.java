@@ -464,7 +464,7 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
         if (isPassthrough(type)) {
             promise.resolve(true);
         } else {
-            promise.resolve(false);
+            promise.reject(new Exception("type " + type + " node cannot not passthrough"));
         }
     }
 
