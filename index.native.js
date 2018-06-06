@@ -81,6 +81,32 @@ class OeBt {
         NativeModule.startScan(timeoutSeconds);
     }
 
+    static isPassthrough({
+        type,
+    }) {
+        return NativeModule.isPassthrough(type);
+    }
+
+    static changeBriTmpPwr({
+        meshAddress,
+        brightness,
+        colorTemp,
+        power,
+        dhmKey,
+        type,
+        name,
+        macAddress,
+    }) {
+        NativeModule.changeBriTmpPwr(JSON.stringify({
+            shortId: meshAddress,
+            type,
+            name,
+            id: macAddress,
+            dhmKey,
+            groups: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        }), brightness, colorTemp, power);
+    }
+
     static changePower({
         meshAddress,
         value,

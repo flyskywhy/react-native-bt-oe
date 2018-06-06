@@ -59,6 +59,7 @@ import com.csr.csrmesh2.ConfigModelApi;
 import com.csr.csrmesh2.DeviceInfo;
 import com.csr.csrmesh2.MeshConstants;
 import com.csr.csrmesh2.MeshService;
+import com.csr.csrmesh2.DataModelApi;
 import com.csr.csrmesh2.LightModelApi;
 import com.csr.csrmesh2.PowerModelApi;
 import com.csr.csrmesh2.PowerState;
@@ -454,11 +455,49 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
         }
     }
 
+    private boolean isPassthrough(int type) {
+        return type == 30848;
+    }
+
+    @ReactMethod
+    public void isPassthrough(int type, Promise promise) {
+        if (isPassthrough(type)) {
+            promise.resolve(true);
+        } else {
+            promise.resolve(false);
+        }
+    }
+
+    @ReactMethod
+    public void changeBriTmpPwr(String devJson, int brightness, int colorTemp, int power) {
+        try {
+            JSONObject devJSONObject = new JSONObject(devJson);
+            String data = "st00";
+            data += String.format("%02x", brightness);
+            data += String.format("%02x", colorTemp);
+            data += power == 1 ? "op" : "cl";
+            DataModelApi.sendData(devJSONObject.getInt("shortId"), data.getBytes(), false);
+            // 可以发送小于等于 10 字节的数据在串口上显示出来，不过发送 10 字节以上或者说 ack 为 true
+            // 但是没有提前 setContinuousScanEnabled() 的会 MeshConstants.MESSAGE_TIMEOUT ，只
+            // 不过这种方式貌似是为了手机之间通过 蓝牙 mesh 网络传输大量数据用的，因此这里就不实现了
+            // DataModelApi.sendData(devJSONObject.getInt("shortId"), brightness == 1 ? "setbri008080op".getBytes() : "setbri008080cl".getBytes(), true);
+        } catch (JSONException localJSONException) {
+            localJSONException.printStackTrace();
+        }
+    }
+
     @ReactMethod
     private void changePower(String devJson, int value) {
         try {
-            NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
-            Manager.inst().onOff(value == 1 ? true : false, dev);
+            JSONObject devJSONObject = new JSONObject(devJson);
+            NetworkConfig.Device dev = NetworkConfig.Device.a(devJSONObject);
+            if (isPassthrough(devJSONObject.getInt("type"))) {
+                String data = "setpwr00";
+                data += value == 1 ? "op" : "cl";
+                DataModelApi.sendData(devJSONObject.getInt("shortId"), data.getBytes(), false);
+            } else {
+                Manager.inst().onOff(value == 1 ? true : false, dev);
+            }
         } catch (JSONException localJSONException) {
             localJSONException.printStackTrace();
         }
@@ -467,10 +506,17 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     @ReactMethod
     private void changeBrightness(String devJson, int value) {
         try {
+            JSONObject devJSONObject = new JSONObject(devJson);
             NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
             Util.UIColor color = new Util.UIColor(0, 0, 0);
             Util.CoolWarm cw = new Util.CoolWarm(0, value / 255.0D);
-            Manager.inst().hsbtb(color, cw, -1, dev);
+            if (isPassthrough(devJSONObject.getInt("type"))) {
+                String data = "setbri00";
+                data += String.format("%02x", value);
+                DataModelApi.sendData(devJSONObject.getInt("shortId"), data.getBytes(), false);
+            } else {
+                Manager.inst().hsbtb(color, cw, -1, dev);
+            }
         } catch (JSONException localJSONException) {
             localJSONException.printStackTrace();
         }
@@ -479,10 +525,17 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     @ReactMethod
     private void changeColorTemp(String devJson, int value) {
         try {
+            JSONObject devJSONObject = new JSONObject(devJson);
             NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
             Util.UIColor color = new Util.UIColor(0, 0, 0);
             Util.CoolWarm cw = new Util.CoolWarm(value / 255.0D, 0.5);
-            Manager.inst().hsbtb(color, cw, 0.5, dev);
+            if (isPassthrough(devJSONObject.getInt("type"))) {
+                String data = "settmp00";
+                data += String.format("%02x", value);
+                DataModelApi.sendData(devJSONObject.getInt("shortId"), data.getBytes(), false);
+            } else {
+                Manager.inst().hsbtb(color, cw, 0.5, dev);
+            }
         } catch (JSONException localJSONException) {
             localJSONException.printStackTrace();
         }
