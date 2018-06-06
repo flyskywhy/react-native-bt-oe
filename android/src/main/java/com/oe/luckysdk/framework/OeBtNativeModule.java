@@ -726,7 +726,9 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
         }
 
         @Override
-        public void onRecentChanged() { }
+        public void onRecentChanged() {
+            Log.d(TAG, "onRecentChanged");
+        }
     };
 
     /*********************/
