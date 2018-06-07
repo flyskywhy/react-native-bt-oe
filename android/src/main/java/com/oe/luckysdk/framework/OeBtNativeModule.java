@@ -89,8 +89,6 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
     private static final int BLUETOOTH_RESULT_CODE = 5;
     private static final int STORAGE_RESULT_CODE = 6;
 
-    private static int MIN_DEVICE_ID = 0x8000;
-
     // Event names
     public static final String BT_ENABLED = "bluetoothEnabled";
     public static final String BT_DISABLED = "bluetoothDisabled";
@@ -247,26 +245,9 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
 
     @ReactMethod
     public void doInit() {
-if (D) Log.d(TAG, "isInited: " + isInited);
         if (!isInited) {
             isInited = true;
         }
-
-        boolean permBle = false, permLoc = false;
-        permBle = ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.BLUETOOTH) == PackageManager.PERMISSION_GRANTED
-                      && ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.BLUETOOTH_ADMIN) == PackageManager.PERMISSION_GRANTED;
-        permLoc = ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                      || ContextCompat.checkSelfPermission(getCurrentActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-
-        if (!permBle || !permLoc){
-            ActivityCompat.requestPermissions(getCurrentActivity(),new String[]{
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-            }, 10000);
-        }
-
-        // checkLocation();
 
         if (mBluetoothAdapter == null) {
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -305,50 +286,20 @@ if (D) Log.d(TAG, "isInited: " + isInited);
 
     @ReactMethod
     public void doResume() {
-        //检查是否支持蓝牙设备
-        // if (!LeBluetooth.getInstance().isSupport(mContext)) {
-        //     Toast.makeText(mContext, "ble not support", Toast.LENGTH_SHORT).show();
-        //     return;
-        // }
-
-        // if (!LeBluetooth.getInstance().isEnabled()) {
-        //     AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //     builder.setMessage("开启蓝牙，体验智能灯!");
-        //     builder.setNeutralButton("cancel", new DialogInterface.OnClickListener() {
-        //         @Override
-        //         public void onClick(DialogInterface dialog, int which) {
-        //             finish();
-        //         }
-        //     });
-        //     builder.setNegativeButton("enable", new DialogInterface.OnClickListener() {
-        //         @Override
-        //         public void onClick(DialogInterface dialog, int which) {
-        //             LeBluetooth.getInstance().enable(getApplicationContext());
-        //         }
-        //     });
-        //     builder.show();
-        // }
-
-//         checkPermissions();
-//         checkAvailability();
-
         Log.d(TAG, "onResume");
 
+        checkPermissions();
+        checkAvailability();
+        checkLocation();
+
         Manager.inst().lsnrs.addLsnr(lsnr);
-        // Manager.inst().checkConnect();
-        // TaskPool.DefSeqTaskPool().PushCycTask(autoConn, 16 * 1000, 3 * 1000);
     }
 
 
     @ReactMethod
     public void doPause() {
-        // TaskPool.DefSeqTaskPool().CancelCycTask(autoConn);
         Manager.inst().lsnrs.remLsnr(lsnr);
     }
-
-    // Runnable autoConn = () -> {
-    //     Manager.inst().checkConnect();
-    // };
 
     private void checkPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -415,8 +366,6 @@ if (D) Log.d(TAG, "isInited: " + isInited);
                 // Show our settings alert and let the use turn on the GPS/Location
                 // showBTStatusDialog(false);
             }
-
-
         }
     }
 
@@ -428,20 +377,6 @@ if (D) Log.d(TAG, "isInited: " + isInited);
     @ReactMethod
     public void setNetworkPassPhrase(String config) {
         Manager.inst().restoreNetworkConfig(config, true);
-Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
-
-        // if (Manager.inst().getLocalNetworkList().size() == 0)
-        // {
-        //     Manager.inst().createNetwork("foobar");
-        //     Manager.NetworkInfo info = Manager.inst().getCurrNetInfo();
-        //     String str = Manager.inst().getNetworkConfig(info.account, info.password, info.network);
-        //     Log.d(TAG, "network: " + str);
-        // }
-
-// Log.d(TAG, "network: " + Manager.inst().getCurrNetInfo());
-// Manager.inst().getNetworkConfig(account, password, networkName)
-        // if (Manager.inst().getLocalNetworkList().size() > 0 && Manager.inst().getGroups().size() == 0)
-        //     Manager.inst().addGroup("My first group");
     }
 
     @ReactMethod
@@ -456,11 +391,6 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
 
     @ReactMethod
     public void autoRefreshNotify(int repeatCount, int Interval) {
-        // LeRefreshNotifyParameters refreshNotifyParams = Parameters.createRefreshNotifyParameters();
-        // refreshNotifyParams.setRefreshRepeatCount(repeatCount);
-        // refreshNotifyParams.setRefreshInterval(Interval);
-
-        // TelinkLightService.Instance().autoRefreshNotify(refreshNotifyParams);
     }
 
     @ReactMethod
@@ -633,7 +563,6 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
         @Override
         public void onDevFound(NetworkConfig.Device dev, double rssi) {
             Log.d(TAG, "Found device: " + dev);
-
             onLeScan(dev);
         }
 
@@ -652,7 +581,6 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
         @Override
         public void onDevAdd(final NetworkConfig.Device dev) {
             Log.d(TAG, "Added device: " + dev);
-
             onUpdateMeshCompleted(dev);
 
             // // // do some example control:
