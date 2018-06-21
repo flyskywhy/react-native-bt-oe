@@ -7,22 +7,25 @@ const NativeModule = NativeModules.OeBt;
 class OeBt {
     static MESH_ADDRESS_MIN = 0x8001;
     static MESH_ADDRESS_MAX = 0x8FFF;
-    static BRIGHTNESS_MIN = 5;
-    static BRIGHTNESS_MAX = 255;
+    static HUE_MIN = 0;
+    static HUE_MAX = 360;
+    static SATURATION_MIN = 0;
+    static SATURATION_MAX = 100;
+    static BRIGHTNESS_MIN = 2;
+    static BRIGHTNESS_MAX = 100;
     static COLOR_TEMP_MIN = 1;
-    static COLOR_TEMP_MAX = 255;
+    static COLOR_TEMP_MAX = 100;    // actually is 255 max after Util.CoolWarm(temp / 100.0D, lastBrightness / 100.0D) in JAVA, where temp / 100.0D is warmRatio, lastBrightness / 100.0D is brightnessRatio
     static NODE_STATUS_OFF = 0;
     static NODE_STATUS_ON = 1;
     static NODE_STATUS_OFFLINE = 2;
     static DELAY_MS_AFTER_UPDATE_MESH_COMPLETED = 1;
 
+    static passthroughMode = undefined; // send data on serial port to controll bluetooth node
+    static lastBrightness = 2;
+
     static doInit() {
         NativeModule.doInit();
     }
-
-    // static doInit() {
-    //     NativeModule.doInit();
-    // }
 
     static doDestroy() {
         NativeModule.doDestroy();
@@ -49,7 +52,6 @@ class OeBt {
         }));
     }
 
-    // 自动重连
     static autoConnect({
         userMeshName,
         userMeshPwd,
@@ -58,13 +60,10 @@ class OeBt {
         return NativeModule.autoConnect();
     }
 
-    // 自动刷新 Notify
     static autoRefreshNotify({
         repeatCount,
         Interval
-    }) {
-        return NativeModule.autoRefreshNotify(repeatCount, Interval);
-    }
+    }) {}
 
     static idleMode({
         disconnect
@@ -81,10 +80,15 @@ class OeBt {
         NativeModule.startScan(timeoutSeconds);
     }
 
-    static isPassthrough({
-        type,
+    static sendData({
+        meshAddress,
+        value,
     }) {
-        return NativeModule.isPassthrough(type);
+        NativeModule.sendData(meshAddress, value);
+    }
+
+    static maxTo255(value, max) {
+        return parseInt(value * 255 / max, 10);
     }
 
     static changeBriTmpPwr({
@@ -97,14 +101,21 @@ class OeBt {
         name,
         macAddress,
     }) {
-        NativeModule.changeBriTmpPwr(JSON.stringify({
-            shortId: meshAddress,
-            type,
-            name,
-            id: macAddress,
-            dhmKey,
-            groups: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        }), brightness, colorTemp, power);
+        for (let mode in this.passthroughMode) {
+            if (this.passthroughMode[mode].includes(type)) {
+                if (mode === 'sllc') {
+                    let data = 'st00';
+                    data += this.padHexString(this.maxTo255(brightness, this.BRIGHTNESS_MAX).toString(16));
+                    data += this.padHexString(this.maxTo255(colorTemp, this.COLOR_TEMP_MAX).toString(16));
+                    data += power === 1 ? 'op' : 'cl';
+                    this.sendData({
+                        meshAddress,
+                        value: [].map.call(data, str => str.charCodeAt(0)),
+                    });
+                    break;
+                }
+            }
+        }
     }
 
     static changePower({
@@ -115,32 +126,83 @@ class OeBt {
         name,
         macAddress,
     }) {
-        NativeModule.changePower(JSON.stringify({
-            shortId: meshAddress,
-            type,
-            name,
-            id: macAddress,
-            dhmKey,
-            groups: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        }), value);
+        let changed = false;
+
+        if (this.passthroughMode) {
+            for (let mode in this.passthroughMode) {
+                if (this.passthroughMode[mode].includes(type)) {
+                    if (mode === 'sllc') {
+                        let data = 'setpwr00';
+                        data += value === 1 ? 'op' : 'cl';
+
+                        this.sendData({
+                            meshAddress,
+                            value: [].map.call(data, str => str.charCodeAt(0)),
+                        });
+
+                        changed = true;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        if (!changed) {
+            NativeModule.changePower(JSON.stringify({
+                shortId: meshAddress,
+                type,
+                name,
+                id: macAddress,
+                dhmKey,
+                groups: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            }), value);
+        }
     }
 
     static changeBrightness({
         meshAddress,
+        hue = 0,
+        saturation = 0,
         value,
         dhmKey,
         type,
         name,
         macAddress,
     }) {
-        NativeModule.changeBrightness(JSON.stringify({
-            shortId: meshAddress,
-            type,
-            name,
-            id: macAddress,
-            dhmKey,
-            groups: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        }), value);
+        let changed = false;
+
+        if (this.passthroughMode) {
+            for (let mode in this.passthroughMode) {
+                if (this.passthroughMode[mode].includes(type)) {
+                    if (mode === 'sllc') {
+                        let data = 'setbri00';
+                        data += this.padHexString(this.maxTo255(value, this.BRIGHTNESS_MAX).toString(16));
+                        this.sendData({
+                            meshAddress,
+                            value: [].map.call(data, str => str.charCodeAt(0)),
+                        });
+
+                        changed = true;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        if (!changed) {
+            this.lastBrightness = value;
+
+            NativeModule.changeBrightness(JSON.stringify({
+                shortId: meshAddress,
+                type,
+                name,
+                id: macAddress,
+                dhmKey,
+                groups: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            }), hue, saturation, value);
+        }
     }
 
     static changeColorTemp({
@@ -151,14 +213,37 @@ class OeBt {
         name,
         macAddress,
     }) {
-        NativeModule.changeColorTemp(JSON.stringify({
-            shortId: meshAddress,
-            type,
-            name,
-            id: macAddress,
-            dhmKey,
-            groups: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        }), value);
+        let changed = false;
+
+        if (this.passthroughMode) {
+            for (let mode in this.passthroughMode) {
+                if (this.passthroughMode[mode].includes(type)) {
+                    if (mode === 'sllc') {
+                        let data = 'settmp00';
+                        data += this.padHexString(this.maxTo255(value, this.COLOR_TEMP_MAX).toString(16));
+                        this.sendData({
+                            meshAddress,
+                            value: [].map.call(data, str => str.charCodeAt(0)),
+                        });
+
+                        changed = true;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        if (!changed) {
+            NativeModule.changeColorTemp(JSON.stringify({
+                shortId: meshAddress,
+                type,
+                name,
+                id: macAddress,
+                dhmKey,
+                groups: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            }), value, this.lastBrightness);
+        }
     }
 
     static changeColor({
@@ -179,16 +264,21 @@ class OeBt {
         }), value);
     }
 
+    static padHexString(string) {
+        if (string.length === 1) {
+            return '0' + string;
+        } else {
+            return string;
+        }
+    }
+
+    static getTypeFromUuid = uuid => parseInt(uuid.slice(4, 8), 16);
+
     static configNode({
         node,
         cfg,
         isToClaim,
     }) {
-            // console.warn({shortId: node.meshAddress,
-            //                         type: node.type,
-            //                         name: node.name,
-            //                         id: node.macAddress,
-            //                         dhmKey: node.dhmKey,})
         return NativeModule.configNode(JSON.stringify({
             shortId: node.meshAddress,
             type: node.type,

@@ -390,10 +390,6 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
     }
 
     @ReactMethod
-    public void autoRefreshNotify(int repeatCount, int Interval) {
-    }
-
-    @ReactMethod
     public void idleMode(boolean disconnect) {
     }
 
@@ -405,35 +401,19 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
         }
     }
 
-    private boolean isPassthrough(int type) {
-        return type == 30848;
+    public static byte[] readableArray2ByteArray(ReadableArray arr) {
+        int size = arr.size();
+        byte[] byteArr = new byte[size];
+        for(int i = 0; i < arr.size(); i++) {
+            byteArr[i] = (byte)arr.getInt(i);
+        }
+
+        return byteArr;
     }
 
     @ReactMethod
-    public void isPassthrough(int type, Promise promise) {
-        if (isPassthrough(type)) {
-            promise.resolve(true);
-        } else {
-            promise.reject(new Exception("type " + type + " node cannot not passthrough"));
-        }
-    }
-
-    @ReactMethod
-    public void changeBriTmpPwr(String devJson, int brightness, int colorTemp, int power) {
-        try {
-            JSONObject devJSONObject = new JSONObject(devJson);
-            String data = "st00";
-            data += String.format("%02x", brightness);
-            data += String.format("%02x", colorTemp);
-            data += power == 1 ? "op" : "cl";
-            DataModelApi.sendData(devJSONObject.getInt("shortId"), data.getBytes(), false);
-            // 可以发送小于等于 10 字节的数据在串口上显示出来，不过发送 10 字节以上或者说 ack 为 true
-            // 但是没有提前 setContinuousScanEnabled() 的会 MeshConstants.MESSAGE_TIMEOUT ，只
-            // 不过这种方式貌似是为了手机之间通过 蓝牙 mesh 网络传输大量数据用的，因此这里就不实现了
-            // DataModelApi.sendData(devJSONObject.getInt("shortId"), brightness == 1 ? "setbri008080op".getBytes() : "setbri008080cl".getBytes(), true);
-        } catch (JSONException localJSONException) {
-            localJSONException.printStackTrace();
-        }
+    public void sendData(int meshAddress, ReadableArray value) {
+        DataModelApi.sendData(meshAddress, readableArray2ByteArray(value), false);
     }
 
     @ReactMethod
@@ -441,51 +421,32 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
         try {
             JSONObject devJSONObject = new JSONObject(devJson);
             NetworkConfig.Device dev = NetworkConfig.Device.a(devJSONObject);
-            if (isPassthrough(devJSONObject.getInt("type"))) {
-                String data = "setpwr00";
-                data += value == 1 ? "op" : "cl";
-                DataModelApi.sendData(devJSONObject.getInt("shortId"), data.getBytes(), false);
-            } else {
-                Manager.inst().onOff(value == 1 ? true : false, dev);
-            }
+            Manager.inst().onOff(value == 1 ? true : false, dev);
         } catch (JSONException localJSONException) {
             localJSONException.printStackTrace();
         }
     }
 
     @ReactMethod
-    public void changeBrightness(String devJson, int value) {
+    public void changeBrightness(String devJson, int hue, int saturation, int value) {
         try {
             JSONObject devJSONObject = new JSONObject(devJson);
             NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
-            Util.UIColor color = new Util.UIColor(0, 0, 0);
-            Util.CoolWarm cw = new Util.CoolWarm(0, value / 255.0D);
-            if (isPassthrough(devJSONObject.getInt("type"))) {
-                String data = "setbri00";
-                data += String.format("%02x", value);
-                DataModelApi.sendData(devJSONObject.getInt("shortId"), data.getBytes(), false);
-            } else {
-                Manager.inst().hsbtb(color, cw, -1, dev);
-            }
+            Util.UIColor color = new Util.UIColor(hue / 360.0D, saturation / 100.0D, value / 100.0D);
+            Util.CoolWarm cw = new Util.CoolWarm(0.0, value / 100.0D);
+            Manager.inst().hsbtb(color, cw, -1, dev);
         } catch (JSONException localJSONException) {
             localJSONException.printStackTrace();
         }
     }
 
     @ReactMethod
-    public void changeColorTemp(String devJson, int value) {
+    public void changeColorTemp(String devJson, int value, int lastBrightness) {
         try {
             JSONObject devJSONObject = new JSONObject(devJson);
             NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
-            Util.UIColor color = new Util.UIColor(0, 0, 0);
-            Util.CoolWarm cw = new Util.CoolWarm(value / 255.0D, 0.5);
-            if (isPassthrough(devJSONObject.getInt("type"))) {
-                String data = "settmp00";
-                data += String.format("%02x", value);
-                DataModelApi.sendData(devJSONObject.getInt("shortId"), data.getBytes(), false);
-            } else {
-                Manager.inst().hsbtb(color, cw, 0.5, dev);
-            }
+            Util.CoolWarm cw = new Util.CoolWarm(value / 100.0D, lastBrightness / 100.0D);
+            Manager.inst().hsbtb(null, cw, lastBrightness / 100.0D, dev);
         } catch (JSONException localJSONException) {
             localJSONException.printStackTrace();
         }

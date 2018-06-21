@@ -1,14 +1,21 @@
 class OeBt {
     static MESH_ADDRESS_MIN = 0x8001;
     static MESH_ADDRESS_MAX = 0x8FFF;
-    static BRIGHTNESS_MIN = 5;
-    static BRIGHTNESS_MAX = 255;
+    static HUE_MIN = 0;
+    static HUE_MAX = 360;
+    static SATURATION_MIN = 0;
+    static SATURATION_MAX = 100;
+    static BRIGHTNESS_MIN = 2;
+    static BRIGHTNESS_MAX = 100;
     static COLOR_TEMP_MIN = 1;
-    static COLOR_TEMP_MAX = 255;
+    static COLOR_TEMP_MAX = 100;    // actually is 255 max after Util.CoolWarm(temp / 100.0D, lastBrightness / 100.0D) in JAVA, where temp / 100.0D is warmRatio, lastBrightness / 100.0D is brightnessRatio
     static NODE_STATUS_OFF = 0;
     static NODE_STATUS_ON = 1;
     static NODE_STATUS_OFFLINE = 2;
     static DELAY_MS_AFTER_UPDATE_MESH_COMPLETED = 1;
+
+    static passthroughMode = undefined; // send data on serial port to controll bluetooth node
+    static lastBrightness = 2;
 
     static doInit() {}
 
@@ -49,12 +56,6 @@ class OeBt {
         timeoutSeconds,
         isSingleNode,
     }) {}
-
-    static isPassthrough({
-        type,
-    }) {
-        return false;
-    }
 
     static changeBriTmpPwr({
         meshAddress,
@@ -102,6 +103,8 @@ class OeBt {
         name,
         macAddress,
     }) {}
+
+    static getTypeFromUuid = uuid => parseInt(uuid.slice(4, 8), 16);
 
     static configNode({
         node,
