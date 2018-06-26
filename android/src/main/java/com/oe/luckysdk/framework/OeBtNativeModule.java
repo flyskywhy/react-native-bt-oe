@@ -489,10 +489,10 @@ Log.d(TAG, "NetworkListSize: " + Manager.inst().getLocalNetworkList().size());
     }
 
     @ReactMethod
-    private void changeColor(String devJson, int value) {
+    private void changeColor(String devJson, int hue, int saturation, int value) {
          try {
             NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
-            Util.UIColor color = new Util.UIColor(value / 255.0D, value / 255.0D, value / 255.0D);
+            Util.UIColor color = new Util.UIColor(hue / 360.0D, saturation / 100.0D, value / 100.0D);
             Util.CoolWarm cw = new Util.CoolWarm(0.5, 0.5);
             Manager.inst().hsbtb(color, cw, 0.5, dev);
         } catch (JSONException localJSONException) {
