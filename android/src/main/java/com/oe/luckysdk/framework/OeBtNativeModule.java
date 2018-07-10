@@ -432,7 +432,10 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
         try {
             JSONObject devJSONObject = new JSONObject(devJson);
             NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
-            Util.UIColor color = new Util.UIColor(hue / 360.0D, saturation / 100.0D, value / 100.0D);
+            Util.UIColor color = null;
+            if (hue != -1) {
+                color = new Util.UIColor(hue / 360.0D, saturation / 100.0D, value / 100.0D);
+            }
             Util.CoolWarm cw = new Util.CoolWarm(0.0, value / 100.0D);
             Manager.inst().hsbtb(color, cw, -1, dev);
         } catch (JSONException localJSONException) {
