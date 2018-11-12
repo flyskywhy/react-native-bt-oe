@@ -288,6 +288,16 @@ class OeBt {
             groups: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         }), isToClaim);
     }
+
+    static getTotalOfGroupIndex({
+        meshAddress,
+    }) {}
+
+    static setNodeGroupAddr({
+        meshAddress,
+        groupIndex,
+        groupAddress,
+    }) {}
 }
 
 module.exports = OeBt;

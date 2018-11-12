@@ -111,6 +111,16 @@ class OeBt {
         cfg,
         isToClaim,
     }) {}
+
+    static getTotalOfGroupIndex({
+        meshAddress,
+    }) {}
+
+    static setNodeGroupAddr({
+        meshAddress,
+        groupIndex,
+        groupAddress,
+    }) {}
 }
 
 module.exports = OeBt;
