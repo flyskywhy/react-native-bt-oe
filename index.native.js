@@ -7,6 +7,8 @@ const NativeModule = NativeModules.OeBt;
 class OeBt {
     static MESH_ADDRESS_MIN = 0x8001;
     static MESH_ADDRESS_MAX = 0x8FFF;
+    static GROUP_ADDRESS_MIN = 0x0000;
+    static GROUP_ADDRESS_MAX = 0x7FFF;
     static HUE_MIN = 0;
     static HUE_MAX = 360;
     static SATURATION_MIN = 0;
