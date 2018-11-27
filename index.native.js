@@ -250,6 +250,8 @@ class OeBt {
 
     static changeColor({
         meshAddress,
+        hue,
+        saturation,
         value,
         dhmKey,
         type,
@@ -263,7 +265,9 @@ class OeBt {
             id: macAddress,
             dhmKey,
             groups: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        }), value);
+        }), hue,
+            saturation,
+            value);
     }
 
     static padHexString(string) {

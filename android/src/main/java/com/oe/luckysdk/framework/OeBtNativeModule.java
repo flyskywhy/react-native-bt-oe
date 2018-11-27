@@ -456,15 +456,16 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
     }
 
     @ReactMethod
-    public void changeColor(String devJson, int value) {
-        // try {
-        //     NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
-        //     Util.UIColor color = new Util.UIColor(0, 0, 0);
-        //     Util.CoolWarm cw = new Util.CoolWarm(value / 255.0D, 0.5);
-        //     Manager.inst().hsbtb(color, cw, 0.5, dev);
-        // } catch (JSONException localJSONException) {
-        //     localJSONException.printStackTrace();
-        // }
+    private void changeColor(String devJson, int hue, int saturation, int value) {
+         try {
+            NetworkConfig.Device dev = NetworkConfig.Device.a(new JSONObject(devJson));
+            Util.UIColor color = new Util.UIColor(hue / 360.0D, saturation / 100.0D, value / 100.0D);
+            // Util.CoolWarm cw = new Util.CoolWarm(value / 255.0D, 0.5);
+            Util.CoolWarm cw = new Util.CoolWarm(0.5, 0.5);
+            Manager.inst().hsbtb(color, cw, 0.5, dev);
+        } catch (JSONException localJSONException) {
+            localJSONException.printStackTrace();
+        }
     }
 
     @ReactMethod
