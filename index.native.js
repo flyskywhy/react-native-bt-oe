@@ -53,6 +53,10 @@ class OeBt {
         DeviceEventEmitter.removeListener(eventName, handler);
     }
 
+    static enableBluetooth() {
+        NativeModule.enableBluetooth();
+    }
+
     static notModeAutoConnectMesh() {
         return NativeModule.notModeAutoConnectMesh();
     }

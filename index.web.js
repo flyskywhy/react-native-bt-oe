@@ -39,6 +39,8 @@ class OeBt {
 
     static removeListener(eventName, handler) {}
 
+    static enableBluetooth() {}
+
     static notModeAutoConnectMesh() {
         return true;
     }

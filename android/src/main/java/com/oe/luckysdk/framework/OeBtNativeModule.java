@@ -370,6 +370,13 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
     }
 
     @ReactMethod
+    public void enableBluetooth() {
+        if (mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()) {
+            mBluetoothAdapter.enable();
+        }
+    }
+
+    @ReactMethod
     public void notModeAutoConnectMesh(Promise promise) {
         promise.resolve(true);
     }
