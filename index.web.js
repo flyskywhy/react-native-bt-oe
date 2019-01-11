@@ -84,6 +84,10 @@ class OeBt {
         macAddress,
     }) {}
 
+    static remind({
+        meshAddress,
+    }) {}
+
     static changePower({
         meshAddress,
         value,

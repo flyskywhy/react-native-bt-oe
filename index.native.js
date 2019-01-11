@@ -136,6 +136,10 @@ class OeBt {
         }
     }
 
+    static remind({
+        meshAddress,
+    }) {}
+
     static changePower({
         meshAddress,
         value,
