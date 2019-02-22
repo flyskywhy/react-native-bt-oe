@@ -147,6 +147,7 @@ class OeBt {
         type,
         name,
         macAddress,
+        immediate = false,
     }) {
         let changed = false;
 
@@ -306,6 +307,7 @@ class OeBt {
         value,
         colorIds = [1, 2, 3, 4, 5],
         type,
+        immediate = false,
     }) {}
 
     static getTypeFromUuid = uuid => parseInt(uuid.slice(4, 8), 16);
