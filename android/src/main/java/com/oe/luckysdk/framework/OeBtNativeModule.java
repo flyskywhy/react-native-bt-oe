@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.ParcelUuid;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -85,6 +86,7 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
     // Debugging
     private static final boolean D = true;
 
+    private static final int REQUEST_CODE_LOCATION_SETTINGS = 2;
     private static final int ACCESS_COARSE_LOCATION_RESULT_CODE = 4;
     private static final int BLUETOOTH_RESULT_CODE = 5;
     private static final int STORAGE_RESULT_CODE = 6;
@@ -92,6 +94,8 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
     // Event names
     public static final String BT_ENABLED = "bluetoothEnabled";
     public static final String BT_DISABLED = "bluetoothDisabled";
+    public static final String SYSTEM_LOCATION_ENABLED = "systemLocationEnabled";
+    public static final String SYSTEM_LOCATION_DISABLED = "systemLocationDisabled";
     public static final String SERVICE_CONNECTED = "serviceConnected";
     public static final String SERVICE_DISCONNECTED = "serviceDisconnected";
     public static final String NOTIFICATION_ONLINE_STATUS = "notificationOnlineStatus";
@@ -200,6 +204,10 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
         //         if (D) Log.d(TAG, "Pairing failed");
         //     }
         // }
+
+        if (requestCode == REQUEST_CODE_LOCATION_SETTINGS) {
+            checkSystemLocation();
+        }
     }
 
     @Override
@@ -290,7 +298,7 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
 
         checkPermissions();
         checkAvailability();
-        checkLocation();
+        checkSystemLocation();
 
         Manager.inst().lsnrs.addLsnr(lsnr);
     }
@@ -342,29 +350,34 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
         }
     }
 
-    public void checkLocation() {
-        if (Build.VERSION.SDK_INT >=23) {
-            LocationManager lm = null;
-            boolean gps_enabled = false;
-            boolean network_enabled = false;
+    public boolean isLocationEnable() {
+        LocationManager lm = null;
+        boolean gps_enabled = false;
+        boolean network_enabled = false;
 
-            lm = (LocationManager) getCurrentActivity().getSystemService(mContext.LOCATION_SERVICE);
-            // exceptions will be thrown if provider is not permitted.
-            try {
-                gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                Log.d(TAG, "gps_enabled: " + gps_enabled);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            try {
-                network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-                Log.d(TAG, "network_enabled:" + network_enabled);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            if (gps_enabled == false || network_enabled == false) {
-                // Show our settings alert and let the use turn on the GPS/Location
-                // showBTStatusDialog(false);
+        lm = (LocationManager) getCurrentActivity().getSystemService(mContext.LOCATION_SERVICE);
+        // exceptions will be thrown if provider is not permitted.
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+            Log.d(TAG, "gps_enabled: " + gps_enabled);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+            Log.d(TAG, "network_enabled:" + network_enabled);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return gps_enabled || network_enabled;
+    }
+
+    private void checkSystemLocation() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (isLocationEnable()) {
+                sendEvent(SYSTEM_LOCATION_ENABLED);
+            } else {
+                sendEvent(SYSTEM_LOCATION_DISABLED);
             }
         }
     }
@@ -374,6 +387,12 @@ public class OeBtNativeModule extends ReactContextBaseJavaModule implements Acti
         if (mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()) {
             mBluetoothAdapter.enable();
         }
+    }
+
+    @ReactMethod
+    public void enableSystemLocation() {
+        Intent locationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+        getCurrentActivity().startActivityForResult(locationIntent, REQUEST_CODE_LOCATION_SETTINGS);
     }
 
     @ReactMethod

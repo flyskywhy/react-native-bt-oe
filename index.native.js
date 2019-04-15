@@ -58,6 +58,10 @@ class OeBt {
         NativeModule.enableBluetooth();
     }
 
+    static enableSystemLocation() {
+        NativeModule.enableSystemLocation();
+    }
+
     static notModeAutoConnectMesh() {
         return NativeModule.notModeAutoConnectMesh();
     }

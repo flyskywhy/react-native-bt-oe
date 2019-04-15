@@ -42,6 +42,8 @@ class OeBt {
 
     static enableBluetooth() {}
 
+    static enableSystemLocation() {}
+
     static notModeAutoConnectMesh() {
         return true;
     }
