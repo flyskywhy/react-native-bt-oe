@@ -2,7 +2,6 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '26.0.2'
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 26
@@ -36,23 +35,23 @@ repositories {
 }
 
 dependencies {
-    // compile project(path: ':luckysdk')
-   // compile(name:'luckysdk-release', ext:'aar')
-    compile 'com.oe:luckysdk:+@aar'
-    compile 'csrmesh2.com.csr:csrmeshlibrary:+@aar'
-    compile 'com.madgag.spongycastle:core:1.51.0.0'
-    compile 'com.madgag.spongycastle:pkix:1.51.0.0'
-    compile 'com.facebook.react:react-native:+'
-    // compile 'com.android.support:support-v13:23.1.1'
+    // implementation project(path: ':luckysdk')
+   // implementation(name:'luckysdk-release', ext:'aar')
+    implementation 'com.oe:luckysdk:+@aar'
+    implementation 'csrmesh2.com.csr:csrmeshlibrary:+@aar'
+    implementation 'com.madgag.spongycastle:core:1.51.0.0'
+    implementation 'com.madgag.spongycastle:pkix:1.51.0.0'
+    implementation 'com.facebook.react:react-native:+'
+    // implementation 'com.android.support:support-v13:23.1.1'
 
-    compile 'com.loopj.android:android-async-http:1.4.5'
+    implementation 'com.loopj.android:android-async-http:1.4.5'
 
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    compile 'com.android.support:appcompat-v7:23.3.0'
-    compile 'com.android.support:support-v4:23.3.0'
-    compile 'com.android.support:recyclerview-v7:23.3.0'
-    testCompile 'junit:junit:4.12'
+    implementation 'com.android.support:appcompat-v7:23.3.0'
+    implementation 'com.android.support:support-v4:23.3.0'
+    implementation 'com.android.support:recyclerview-v7:23.3.0'
+    testImplementation 'junit:junit:4.12'
 }
