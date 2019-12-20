@@ -93,6 +93,10 @@ class OeBt {
         meshAddress,
     }) {}
 
+    static isOnline(status) {}
+
+    static isOn(status) {}
+
     static changePower({
         meshAddress,
         value,

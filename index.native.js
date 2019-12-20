@@ -145,6 +145,14 @@ class OeBt {
         meshAddress,
     }) {}
 
+    static isOnline(status) {
+        return (status & 0x03) !== this.NODE_STATUS_OFFLINE;
+    }
+
+    static isOn(status) {
+        return (status & 0x03) === this.NODE_STATUS_ON;
+    }
+
     static changePower({
         meshAddress,
         value,
