@@ -389,6 +389,11 @@ class OeBt {
         alarmId,
     }) {}
 
+    static getNodeInfoWithNewType({
+        nodeInfo = '',
+        newType = 0xA5A5,
+    }) {}
+
     static getFwVerInNodeInfo({
         nodeInfo = '',
     }) {}
