@@ -389,6 +389,15 @@ class OeBt {
         alarmId,
     }) {}
 
+    static getFwVerInNodeInfo({
+        nodeInfo = '',
+    }) {}
+
+    static getNodeInfoWithNewFwVer({
+        nodeInfo = '',
+        newFwVer = '',
+    }) {}
+
     static getFirmwareVersion({
         meshAddress = 0xFFFF,
         relayTimes = 7,
