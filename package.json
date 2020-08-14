@@ -2,11 +2,14 @@
   "name": "react-native-bt-oe",
   "version": "1.0.0",
   "description": "Component implementation for Bluetooth Mesh SDK of [OE](www.oecore.com)",
-  "main": "index.js",
+  "main": "index",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+  },
+  "peerDependencies": {
+    "react-native-bt-csr": "1.0.0"
   },
   "repository": {
     "type": "git",

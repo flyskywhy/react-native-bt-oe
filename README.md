@@ -17,6 +17,7 @@ In `android/app/build.gradle`
 ```
 repositories {
     maven { url "$rootDir/../node_modules/react-native-bt-oe/android/libs" }
+    maven { url "$rootDir/../node_modules/react-native-bt-csr/android/libs" }
 }
 
 dependencies {
