@@ -12,6 +12,15 @@ Component implementation for Bluetooth Mesh SDK of [OE](www.oecore.com) .
 ```shell
 npm i --save react-native-bt-oe
 ```
+For RN >= 0.60 , just in `android/app/build.gradle`
+```
+repositories {
+    maven { url "$rootDir/../node_modules/react-native-bt-oe/android/libs" }
+    maven { url "$rootDir/../node_modules/react-native-bt-csr/android/libs" }
+}
+```
+
+For RN < 0.60, need files edited below:
 
 In `android/app/build.gradle`
 ```
