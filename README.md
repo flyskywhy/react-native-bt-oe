@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    compile project(':react-native-bt-oe')
+    implementation project(':react-native-bt-oe')
 }
 ```
 
@@ -90,6 +90,7 @@ export default class MeshModuleExample extends React.Component {
         );
     }
 }
+```
 
 ## Sponsor
 
