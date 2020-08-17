@@ -8,10 +8,16 @@
 Component implementation for Bluetooth Mesh SDK of [OE](www.oecore.com) .
 
 ## Install
-
+For RN >= 0.60
 ```shell
 npm i --save react-native-bt-oe
 ```
+
+For RN < 0.60
+```shell
+npm i --save react-native-bt-oe@1.0.x
+```
+
 For RN >= 0.60 , just in `android/app/build.gradle`
 ```
 repositories {
