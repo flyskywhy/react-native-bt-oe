@@ -18,23 +18,18 @@ For RN < 0.60
 npm i --save react-native-bt-oe@1.0.x
 ```
 
-For RN >= 0.60 , just in `android/app/build.gradle`
+For RN >= 0.60 , just in `android/settings.gradle`
 ```
-repositories {
-    maven { url "$rootDir/../node_modules/react-native-bt-oe/android/libs" }
-    maven { url "$rootDir/../node_modules/react-native-bt-csr/android/libs" }
-}
+include ':csrmeshlibrary'
+project(':csrmeshlibrary').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-bt-csr/android/libs')
+include ':luckysdk'
+project(':luckysdk').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-bt-oe/android/libs')
 ```
 
 For RN < 0.60, need files edited below:
 
 In `android/app/build.gradle`
 ```
-repositories {
-    maven { url "$rootDir/../node_modules/react-native-bt-oe/android/libs" }
-    maven { url "$rootDir/../node_modules/react-native-bt-csr/android/libs" }
-}
-
 dependencies {
     implementation project(':react-native-bt-oe')
 }
@@ -58,6 +53,10 @@ buildscript {
 
 In `android/settings.gradle`
 ```
+include ':csrmeshlibrary'
+project(':csrmeshlibrary').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-bt-csr/android/libs')
+include ':luckysdk'
+project(':luckysdk').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-bt-oe/android/libs')
 include ':react-native-bt-oe'
 project(':react-native-bt-oe').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-bt-oe/android')
 ```

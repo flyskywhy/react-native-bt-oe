@@ -29,16 +29,9 @@ android {
     useLibrary 'org.apache.http.legacy'
 }
 
-repositories {
-    maven { url "$rootDir/../node_modules/react-native-bt-oe/android/libs" }
-    maven { url "$rootDir/../node_modules/react-native-bt-csr/android/libs" }
-}
-
 dependencies {
-    // implementation project(path: ':luckysdk')
-   // implementation(name:'luckysdk-release', ext:'aar')
-    implementation 'com.oe:luckysdk:+@aar'
-    implementation 'csrmesh2.com.csr:csrmeshlibrary:+@aar'
+    api project(":csrmeshlibrary")
+    api project(":luckysdk")
     implementation 'com.madgag.spongycastle:core:1.51.0.0'
     implementation 'com.madgag.spongycastle:pkix:1.51.0.0'
     implementation 'com.facebook.react:react-native:+'

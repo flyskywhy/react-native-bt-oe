@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('com/oe/luckysdk/1.0.0/luckysdk-1.0.0.aar'))
